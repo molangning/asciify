@@ -19,7 +19,46 @@
 # import re;re.sub(r"\.|@|(\r\n|\r|\n)","","""exec("import base64,lzma;exec(lzma.decompress(base64.b64decode('b')))"))""") -> header 40 char, footer 4 char
 #
 
-import base64,lzma,re
+import base64,lzma,re,sys,argparse
+import argparse
+from PIL import Image,ImageOps,ImageStat
+
+parser = argparse.ArgumentParser(description='Coverts to ascii art given code and picture')
+parser.add_argument('--image', type=str, help='input image', default="sample_images/boykisser.jpg")
+parser.add_argument('--code', type=str, help='python file of code', default="utils/run-gif.py")
+parser.add_argument('--output', type=str, help='output', default="animated-boykisser.py")
+args = parser.parse_args()
+
+img_name=args.image
+code=open(args.code).read()
+img=Image.open(img_name)
+
+width, height = img.size
+aspect_ratio = height/width
+new_width = 120
+new_height = aspect_ratio * new_width * 0.55
+img = img.resize((new_width, int(new_height)))
+
+img_grayscale = img.convert('L')
+
+if ImageStat.Stat(img_grayscale).mean[0] > 128:
+    img_grayscale = ImageOps.invert(img).convert('L')
+
+
+chars = ["#", "."]
+
+pixels = img_grayscale.getdata()
+
+new_pixels = []
+for pixel in pixels:
+    new_pixels.append(chars[pixel//128])
+
+new_pixels = ''.join(new_pixels)
+new_pixels_count = len(new_pixels)
+text = [new_pixels[index:index + new_width] for index in range(0, new_pixels_count, new_width)]
+
+    
+
 
 unpacker_head=r'import base64,lzma,re;exec(lzma.decompress(base64.b64decode(re.sub(r"\.|#|(\r\n|\r|\n)","","""'
 
@@ -28,13 +67,11 @@ unpacker_end='"""))))'
 unpacker_end_length=len(unpacker_end)
 unpacker_head_length=len(unpacker_head)
 
-text = open("ascii_image.txt").read()
-code = open("run-gif.py").read()
+
 # file magic is for linux, the correct execution is python3 file.py
 # but it's there for direct executioners
 file_magic="#!/bin/python3\n\n"
 
-text=text.split('\n')
 width = len(text[0])
 
 
@@ -71,7 +108,6 @@ else:
     raise Exception("unpacker end is longer than the amount of free continuous space in the last line")
 
 
-
 max_payload_size=(width-unpacker_head_length)+((len(text)-2)*width)+(len(last_line)-offset)
 
 payload=base64.b64encode(lzma.compress(bytes(re.sub(r"(\r\n|\r|\n){2,}","\n",re.sub(r'\s*""".*?"""|\s+\\\s*|#.*?(\r\n|\r|\n)',"",code,0,re.S)).strip(),"utf-8"))).decode("utf-8")
@@ -91,6 +127,8 @@ for i in text[unpacker_head_length:len(text)-offset]:
     output+=i
 
 
-output=unpacker_head+output+unpacker_end+"#"*(offset-unpacker_end_length)
+output=file_magic+unpacker_head+output+unpacker_end+"#"*(offset-unpacker_end_length)
 
-open("temp.txt","w").write(output)
+open(args.output,"w").write(output)
+
+print(f"Generated file at {args.output}")
