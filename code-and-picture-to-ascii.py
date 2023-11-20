@@ -25,7 +25,7 @@ from PIL import Image,ImageOps,ImageStat
 
 parser = argparse.ArgumentParser(description='Coverts to ascii art given code and picture')
 parser.add_argument('--image', type=str, help='input image', default="sample_images/boykisser.jpg")
-parser.add_argument('--code', type=str, help='python file of code', default="utils/run-gif.py")
+parser.add_argument('--code', type=str, help='python file of code', default="run-gif.py")
 parser.add_argument('--output', type=str, help='output', default="animated-boykisser.py")
 args = parser.parse_args()
 
@@ -111,7 +111,7 @@ else:
 max_payload_size=(width-unpacker_head_length)+((len(text)-2)*width)+(len(last_line)-offset)
 
 payload=base64.b64encode(lzma.compress(bytes(re.sub(r"(\r\n|\r|\n){2,}","\n",re.sub(r'\s*""".*?"""|\s+\\\s*|#.*?(\r\n|\r|\n)',"",code,0,re.S)).strip(),"utf-8"))).decode("utf-8")
-
+print("\n".join(text))
 if len(payload)>max_payload_size:
     raise Exception("payload is longer than the amount of free space")
 

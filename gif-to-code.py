@@ -5,7 +5,7 @@ from PIL import ImageOps, Image, ImageStat, ImageSequence
 import json, base64
 frames=[]
 
-im = Image.open("sample_images/2cf-3586545039.gif")
+im = Image.open("sample_images/7fqm56-1959674893.gif")
 
 for frame in ImageSequence.Iterator(im):
 
@@ -13,7 +13,7 @@ for frame in ImageSequence.Iterator(im):
 
     width, height = frame.size
     aspect_ratio = height/width
-    new_width = 120
+    new_width = 180 # Original is 120
     new_height = aspect_ratio * new_width * 0.55
     frame = frame.resize((new_width, int(new_height))).convert('RGB')
 
@@ -42,4 +42,4 @@ for frame in ImageSequence.Iterator(im):
 
 import lzma
 
-open('run-gif.py','w').write(rf"""#!/bin/python3\n\nexec('import json,base64,time,lzma\nframes=json.loads(lzma.decompress(base64.b64decode("{base64.b64encode(lzma.compress(json.dumps(frames).encode('utf-8'))).decode('utf-8')}")))\nwhile True:\n for i in frames:\n  print("\x1B[2J\x1B[H")\n  print(i[1])\n  time.sleep(i[0])')""")
+open('run-gif.py','w').write("#!/bin/python3\n\n"+rf"""exec('import json,base64,time,lzma\nframes=json.loads(lzma.decompress(base64.b64decode("{base64.b64encode(lzma.compress(json.dumps(frames).encode('utf-8'))).decode('utf-8')}")))\nwhile True:\n for i in frames:\n  print("\x1B[2J\x1B[H")\n  print(i[1])\n  time.sleep(i[0])')""")
