@@ -1,9 +1,10 @@
 # Image-to-code-suite
 
-This is a project that I made in two days, expect it to be messy.
+Suite of tools for manipulating code and images
 
 # Description
 
-image-to-ascii.py takes a image and encodes it into ascii
-code-and-picture-to-ascii.py takes the ascii and embeds code into it.
+`gif-to-code.py` converts your gif into pure, unformatted code that displays the gif in your terminal
+`code-and-picture-to-ascii.py` takes a code and reference image and formats the code into the shape of the image.
+
 
