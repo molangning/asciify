@@ -24,7 +24,7 @@ import argparse
 from PIL import Image,ImageOps,ImageStat
 
 parser = argparse.ArgumentParser(description='Coverts to ascii art given code and picture')
-parser.add_argument('--image', type=str, help='input image', default="sample_images/boykisser.jpg")
+parser.add_argument('--image', type=str, help='input image', default="sample_media/boykisser.jpg")
 parser.add_argument('--code', type=str, help='python file of code', default="run-gif.py")
 parser.add_argument('--output', type=str, help='output', default="animated-boykisser.py")
 args = parser.parse_args()
@@ -35,7 +35,7 @@ img=Image.open(img_name)
 
 width, height = img.size
 aspect_ratio = height/width
-new_width = 120
+new_width = 400
 new_height = aspect_ratio * new_width * 0.55
 img = img.resize((new_width, int(new_height)))
 

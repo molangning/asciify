@@ -5,7 +5,7 @@ from PIL import ImageOps, Image, ImageStat, ImageSequence
 import json, base64
 frames=[]
 
-im = Image.open("sample_images/7fqm56-1959674893.gif")
+im = Image.open("sample_media/chipi-chipi-chapa-chapa-boykisser.gif")
 
 for frame in ImageSequence.Iterator(im):
 
@@ -13,7 +13,7 @@ for frame in ImageSequence.Iterator(im):
 
     width, height = frame.size
     aspect_ratio = height/width
-    new_width = 180 # Original is 120
+    new_width = 400 # Original is 120
     new_height = aspect_ratio * new_width * 0.55
     frame = frame.resize((new_width, int(new_height))).convert('RGB')
 
