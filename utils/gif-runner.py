@@ -79,9 +79,7 @@ def packer(code):
     code=code.strip()
 
     # print(bytes(code,"utf-8"))
-    # lzma.FORMAT_RAW is 3
-    # lzma.CHECK_NONE is 0
-    compressed_code=lzma.compress(code.encode(),2,0,9)
+    compressed_code=lzma.compress(code.encode())
     encoded_code=base64.b64encode(compressed_code)
     return encoded_code
 
@@ -98,21 +96,13 @@ def packed_packer(b):
     # there is a very fine line between obfuscation and optimization
     # and it appears that I have blurred them a bit too much
     # 
-    return base64.b64encode(lzma.compress(re.sub(r"(\r\n|\r|\n){2,}","\n",re.sub(r'\s*""".*?"""|\s+\\\s*|#.*?(\r\n|\r|\n)',"",b,0,re.S)).strip().encode(),2,0,9))
+    return base64.b64encode(lzma.compress(re.sub(r"(\r\n|\r|\n){2,}","\n",re.sub(r'\s*""".*?"""|\s+\\\s*|#.*?(\r\n|\r|\n)',"",b,0,re.S)).strip().encode()))
 
 # print(packer(test3))
 # print(a(test3))
 
 temp = "#inject some comments"
 
-text = open("example.py").read()
-packed1 = packer(text)
-packed2 = packed_packer(text)
+print(packer(open("example.py").read()))
+print(packed_packer(open("example.py").read())) 
 
-print(len(packed1))
-print(packed1)
-
-print(len(packed2))
-print(packed2)
-
-open("temp/compressed.txt", "wb").write(packed2)
