@@ -6,7 +6,7 @@
 def unpacker(chars):
     # v1 unpacker
     import base64,lzma,re
-    code=re.sub(r"\.|@|(\r\n|\r|\n)","",code)
+    code=re.sub(r"\.|@|(\r\n|\r|\n)","",chars)
     compressed_code=base64.b64decode(chars)
     code=lzma.decompress(compressed_code)
     exec(code)
@@ -19,4 +19,5 @@ def a(b):
     import base64,lzma,re
     print(lzma.decompress(base64.b64decode(re.sub(r"\.|@|(\r\n|\r|\n)","",b)))) # 39 chars
 
-a('')
+compressed_text = open("temp/compressed.txt").read()
+unpacker(compressed_text)
