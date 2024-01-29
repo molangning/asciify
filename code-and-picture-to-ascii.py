@@ -19,7 +19,7 @@
 # import re;re.sub(r"\.|@|(\r\n|\r|\n)","","""exec("import base64,lzma;exec(lzma.decompress(base64.b64decode('b')))"))""") -> header 40 char, footer 4 char
 #
 
-import base64,lzma,re,sys,argparse
+import base64,lzma,re,argparse
 import argparse
 from PIL import Image,ImageOps,ImageStat
 
