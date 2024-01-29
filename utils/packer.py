@@ -49,7 +49,8 @@ if a==1: # after line comment
 \t\tprint("a=1,b=1")
 """
 
-
+# V1 packer comments
+#
 # regex to detect comments: #.*
 # I know the compiled code will be so unreadable and unmaintainable
 #
@@ -67,42 +68,34 @@ if a==1: # after line comment
 # (?s)^\s*\"\"\".*?\"\"\"|#.*?(\r\n|\r|\n)
 # AAIFOiuubaOIajnfsKANDLANF cursed regex
 #
-def packer(code):
-    # v1 packer
-    import base64, re, lzma
-    
-    # removes doc strings, comments and multiline splits
-    code=re.sub(r'\s*""".*?"""|\s+\\\s*|#.*?(\r\n|\r|\n)','',code,0,re.S)
-    # removes excess newlines
-    code=re.sub(r"(\r\n|\r|\n){2,}","\n",code)
-    # removes trailing spaces
-    code=code.strip()
 
-    # print(bytes(code,"utf-8"))
-    compressed_code=lzma.compress(bytes(code,"utf-8"))
+def packer(code):
+    # v2 packer, idk about the excess spaces
+
+    import base64, lzma
+    
+    compressed_code=lzma.compress(code.strip().encode(),2,0,9)
     encoded_code=base64.b64encode(compressed_code)
     return encoded_code
 
-# and now for the unholy amalgamation
-# the fact that this exists means that god is not omnipotent
-# or god is ignorant
-# kudos if you get the reference from that one youtube video
-#
 
 def packed_packer(b):
-    # v1 packer
-    import base64,re,lzma
-    # what have I done....
-    # there is a very fine line between obfuscation and optimization
-    # and it appears that I have blurred them a bit too much
-    # 
-    return base64.b64encode(lzma.compress(bytes(re.sub(r"(\r\n|\r|\n){2,}","\n",re.sub(r'\s*""".*?"""|\s+\\\s*|#.*?(\r\n|\r|\n)',"",b,0,re.S)).strip(),"utf-8")))
+    # v2 packer
+    import base64,lzma
 
-# print(packer(test3))
-# print(a(test3))
+    return base64.b64encode(lzma.compress(b.strip().encode(),2,0,9))
 
-temp = "#inject some comments"
 
-print(packer(open("example.py").read()))
-print(packed_packer(open("example.py").read())) 
+text = open("run-gif.py").read()
+print(len(text))
 
+packed1 = packer(text)
+print(len(packed1))
+
+packed2 = packed_packer(text)
+print(len(packed2))
+
+print(packed1==packed2)
+
+
+open("temp/compressed.txt", "wb").write(packed2)
