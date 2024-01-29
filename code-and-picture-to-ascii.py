@@ -24,7 +24,7 @@ import argparse
 from PIL import Image,ImageOps,ImageStat
 
 parser = argparse.ArgumentParser(description='Coverts given code into the shape of input picture')
-parser.add_argument('--image', type=str, help='input image', default="sample_media/boykisser.jpg")
+parser.add_argument('--image', type=str, help='input image', default="sample_media/frame-7.jpg")
 parser.add_argument('--code', type=str, help='python file of code', default="run-gif.py")
 parser.add_argument('--output', type=str, help='output', default="animated-boykisser.py")
 parser.add_argument('--width', type=int, help='Number of characters in a line', default=400)
@@ -58,8 +58,6 @@ new_pixels = ''.join(new_pixels)
 new_pixels_count = len(new_pixels)
 text = [new_pixels[index:index + new_width] for index in range(0, new_pixels_count, new_width)]
 
-    
-
 
 unpacker_head=r'import base64,lzma,re;exec(lzma.decompress(base64.b64decode(re.sub(r"\.|#|(\r\n|\r|\n)","","""'
 
@@ -69,7 +67,7 @@ unpacker_end_length=len(unpacker_end)
 unpacker_head_length=len(unpacker_head)
 
 
-# file magic is for linux, the correct execution is python3 file.py
+# shebang is for linux, the correct execution is python3 file.py
 # but it's there for direct executioners
 file_magic="#!/bin/python3\n\n"
 
@@ -111,7 +109,7 @@ else:
 
 max_payload_size=(width-unpacker_head_length)+((len(text)-2)*width)+(len(last_line)-offset)
 
-payload=base64.b64encode(lzma.compress(bytes(re.sub(r"(\r\n|\r|\n){2,}","\n",re.sub(r'\s*""".*?"""|\s+\\\s*|#.*?(\r\n|\r|\n)',"",code,0,re.S)).strip(),"utf-8"))).decode("utf-8")
+payload=base64.b64encode(lzma.compress(code.strip().encode(),2,0,9)).decode()
 # print("\n".join(text))
 if len(payload)>max_payload_size:
     raise Exception("payload is longer than the amount of free space")

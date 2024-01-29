@@ -47,6 +47,6 @@ for frame in ImageSequence.Iterator(im):
 
 import lzma
 
-open("temp/raw_frames.json","w").write(json.dumps(frames, indent=4))
+# open("temp/raw_frames.json","w").write(json.dumps(frames))
 
-open('run-gif.py','w').write("#!/bin/python3\n\n"+rf"""exec('import json,base64,time,lzma\nframes=json.loads(\'{json.dumps(frames)}\')\nwhile True:\n for i in frames:\n  print("\x1B[2J\x1B[H"+i[1],flush=True)\n  time.sleep(i[0])')""")
+open('run-gif.py','w').write("#!/bin/python3\n\nimport json,time\n"+rf'''exec(r"""a=json.loads(r'{json.dumps(frames)}')"""+'\nwhile True:\n for i in a:\n  print("\x1B[2J\x1B[H"+i[1],flush=True)\n  time.sleep(i[0]) break')''')
