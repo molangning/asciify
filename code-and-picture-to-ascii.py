@@ -19,14 +19,16 @@
 # import re;re.sub(r"\.|@|(\r\n|\r|\n)","","""exec("import base64,lzma;exec(lzma.decompress(base64.b64decode('b')))"))""") -> header 40 char, footer 4 char
 #
 
-import base64,lzma,re,argparse
+import re
+import lzma
+import base64
 import argparse
 from PIL import Image,ImageOps,ImageStat
 
-parser = argparse.ArgumentParser(description='Coverts given code into the shape of input picture')
+parser = argparse.ArgumentParser(description='Converts given code into the shape of input picture')
 parser.add_argument('--image', type=str, help='input image', default="sample_media/frame-7.jpg")
-parser.add_argument('--code', type=str, help='python file of code', default="run-gif.py")
-parser.add_argument('--output', type=str, help='output', default="animated-boykisser.py")
+parser.add_argument('--code', type=str, help='python file of code', default="out/run-gif.py")
+parser.add_argument('--output', type=str, help='output', default="out/formatted-code.py")
 parser.add_argument('--width', type=int, help='Number of characters in a line', default=400)
 args = parser.parse_args()
 
@@ -72,10 +74,8 @@ unpacker_head_length=len(unpacker_head)
 file_magic="#!/bin/python3\n\n"
 
 width = len(text[0])
-
-
-
 counter=0
+
 for i in text[0]:
     if i == "#":
         counter+=1
@@ -102,29 +102,68 @@ for i in last_line[::-1]:
         break
     offset+=1
 
-
 else:
     raise Exception("unpacker end is longer than the amount of free continuous space in the last line")
 
-
-max_payload_size=(width-unpacker_head_length)+((len(text)-2)*width)+(len(last_line)-offset)
-
-payload=base64.b64encode(lzma.compress(code.strip().encode(),2,0,9)).decode()
-# print("\n".join(text))
-if len(payload)>max_payload_size:
-    raise Exception("payload is longer than the amount of free space")
-
 text="\n".join(text)
+
+max_payload_size = text[unpacker_head_length:len(text)-offset].count("#")
+payload = base64.b64encode(lzma.compress(code.strip().encode())).decode()
+
+if len(payload) > max_payload_size:
+
+    print("Calculating resize...")
+
+    while True:
+
+        new_payload_len = 0
+
+        new_width += 1
+        new_height = int(aspect_ratio * new_width * 0.55)
+        
+        img = img.resize((new_width, new_height))
+        img_grayscale = img.convert('L')
+
+        if ImageStat.Stat(img_grayscale).mean[0] > 128:
+            img_grayscale = ImageOps.invert(img).convert('L')
+
+        new_pixels = []
+
+        for pixel in img_grayscale.getdata():
+            new_pixels.append(chars[pixel//128])
+
+        new_payload_len = ''.join(new_pixels).count("#")
+
+        if new_payload_len >= len(payload):
+            break
+
+    print(f"Found nearest width {new_width+1}, try using it as width")
+
+    raise Exception(f"payload is longer than the amount of free space we have ({len(payload)} > {max_payload_size})")
+
+print("Packed payload")
+
+payload_pointer = 0
+text_pointer = 0
 
 output=""
 for i in text[unpacker_head_length:len(text)-offset]:
-    if len(payload) > 0:
-        if i == "#":
-            output+=payload[0]
-            payload=payload[1:]
-            continue
-    output+=i
+    text_pointer += 1
 
+    if payload_pointer > len(payload)-1:
+        output+=text[unpacker_head_length+text_pointer-1:]
+        break
+
+    if i == "#":
+        output += payload[payload_pointer]
+        payload_pointer += 1
+        continue
+
+    output += i
+
+
+if payload_pointer != len(payload):
+    raise Exception(f"Unused payload left over {payload_pointer} != {len(payload)}")
 
 output=file_magic+unpacker_head+output+unpacker_end+"#"*(offset-unpacker_end_length)
 
