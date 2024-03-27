@@ -51,4 +51,4 @@ for frame in ImageSequence.Iterator(im):
 # open("temp/raw_frames.txt","w").write(str(frames))
 
 source = open(args.template).read()
-open(args.output,'w').write(source.replace("#INJECT", f"a={str(frames)}"))
+open(args.output,'w').write(source.replace("#INJECT", f"a={str(frames)}", 1))
