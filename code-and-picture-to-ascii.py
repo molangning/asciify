@@ -60,10 +60,7 @@ new_pixels = ''.join(new_pixels)
 new_pixels_count = len(new_pixels)
 text = [new_pixels[index:index + new_width] for index in range(0, new_pixels_count, new_width)]
 
-
 unpacker_head=r'import base64,lzma;exec(lzma.decompress(base64.b64decode("""'
-
-
 unpacker_end='""")))'
 unpacker_end_length=len(unpacker_end)
 unpacker_head_length=len(unpacker_head)
