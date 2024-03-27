@@ -90,7 +90,7 @@ if len(target_inject) > count_usable(target_inject):
     raise Exception("unpacker end is longer than the amount of free continuous space in the last line")
 
 text="\n".join(text)
-print(text)
+# print(text)
 
 max_payload_size = count_usable(text[unpacker_head_length:len(text)-unpacker_end_length])
 payload = base64.b64encode(lzma.compress(code.strip().encode())).decode()
