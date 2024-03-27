@@ -1,6 +1,6 @@
 #!/bin/python3
 
-import json,time,struct
+import time,struct
 #INJECT
 b=[]
 for c in a:
