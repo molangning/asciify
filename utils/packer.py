@@ -86,7 +86,7 @@ def packed_packer(b):
     return base64.b64encode(lzma.compress(b.strip().encode(),2,0,9))
 
 
-text = open("run-gif.py").read()
+text = open("example.py").read()
 print(len(text))
 
 packed1 = packer(text)

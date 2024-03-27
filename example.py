@@ -1,25 +1,14 @@
 #!/usr/bin/python3
 
-# shamelessly taken from https://jagt.github.io/python-single-line-convert/
-# 'Reindent based on first line's indent' will reindent -8 spaces in this case
-# comments are still kept at this moment
-from datetime import datetime
-def foo():
-    """
-    triple double quotes are ignored
-    or are they? 
-    """
-    return '"Hey kid what time is it?"'
+# https://www.programiz.com/python-programming/examples/odd-even
 
+# Python program to check if the input number is odd or even.
+# A number is even if division by 2 gives a remainder of 0.
+# If the remainder is 1, it is an odd number.
 
-# done
-print( foo() + '''\n\t'''    \
-            + str(datetime.now()))
-try:
-    raise RuntimeError()
-except:
-    pass
-    """
-    ONE MORE TIME
-    For good measures
-    """
+num = int(input("Enter a number: "))
+if (num % 2) == 0:
+   print("{0} is Even".format(num))
+else:
+   print("{0} is Odd".format(num))
+

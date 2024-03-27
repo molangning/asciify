@@ -48,66 +48,51 @@ if ImageStat.Stat(img_grayscale).mean[0] > 128:
     img_grayscale = ImageOps.invert(img).convert('L')
 
 
-chars = ["#", "."]
+chars = ["#", "?", ";", " "]
 
 pixels = img_grayscale.getdata()
 
 new_pixels = []
 for pixel in pixels:
-    new_pixels.append(chars[pixel//128])
+    new_pixels.append(chars[pixel//64])
 
 new_pixels = ''.join(new_pixels)
 new_pixels_count = len(new_pixels)
 text = [new_pixels[index:index + new_width] for index in range(0, new_pixels_count, new_width)]
 
 
-unpacker_head=r'import base64,lzma,re;exec(lzma.decompress(base64.b64decode(re.sub(r"\.|#|(\r\n|\r|\n)","","""'
+unpacker_head=r'import base64,lzma;exec(lzma.decompress(base64.b64decode("""'
 
 
-unpacker_end='"""))))'
+unpacker_end='""")))'
 unpacker_end_length=len(unpacker_end)
 unpacker_head_length=len(unpacker_head)
 
+usable_chars = ["#"]
+
+def count_usable(to_count):
+    result = re.sub(r"[^#]+", "", to_count)
+    return len(result)
 
 # shebang is for linux, the correct execution is python3 file.py
 # but it's there for direct executioners
 file_magic="#!/bin/python3\n\n"
 
-width = len(text[0])
-counter=0
-
-for i in text[0]:
-    if i == "#":
-        counter+=1
-
-if len(unpacker_head) > counter:
-    raise Exception("unpacker head is longer than the amount of free continuous space in the first line")
-
-start_line=unpacker_head+text[0][unpacker_head_length]
+if len(unpacker_head) > count_usable(text[0]):
+    raise Exception(f"unpacker head is longer than the amount of free continuous space in the first line, minimum width is {len(unpacker_head)}")
 
 
-counter=0
-offset=1
-found_offset=False
+line_width = len(text[0])
 
-last_line=text[-1]
-# reverse last line
-for i in last_line[::-1]:
-    if i == "#":
-        counter+=1
-    else:
-        counter=0
-    if counter == unpacker_end_length:
-        found_offset=True
-        break
-    offset+=1
+target_inject = text[-1][line_width-unpacker_end_length:]
 
-else:
+if len(target_inject) > count_usable(target_inject):
     raise Exception("unpacker end is longer than the amount of free continuous space in the last line")
 
 text="\n".join(text)
+print(text)
 
-max_payload_size = text[unpacker_head_length:len(text)-offset].count("#")
+max_payload_size = count_usable(text[unpacker_head_length:len(text)-unpacker_end_length])
 payload = base64.b64encode(lzma.compress(code.strip().encode())).decode()
 
 if len(payload) > max_payload_size:
@@ -147,14 +132,14 @@ payload_pointer = 0
 text_pointer = 0
 
 output=""
-for i in text[unpacker_head_length:len(text)-offset]:
+for i in text[unpacker_head_length:len(text)-unpacker_end_length]:
     text_pointer += 1
 
     if payload_pointer > len(payload)-1:
         output+=text[unpacker_head_length+text_pointer-1:]
         break
 
-    if i == "#":
+    if i in usable_chars:
         output += payload[payload_pointer]
         payload_pointer += 1
         continue
@@ -165,7 +150,8 @@ for i in text[unpacker_head_length:len(text)-offset]:
 if payload_pointer != len(payload):
     raise Exception(f"Unused payload left over {payload_pointer} != {len(payload)}")
 
-output=file_magic+unpacker_head+output+unpacker_end+"#"*(offset-unpacker_end_length)
+output=file_magic+unpacker_head+output
+output=output[:len(output)-unpacker_end_length]+unpacker_end
 
 open(args.output,"w").write(output)
 

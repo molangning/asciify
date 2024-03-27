@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # this code takes a image and generates a ascii representation of it
 # in black and white with no in between colors
@@ -16,7 +16,7 @@ import sys
 if len(sys.argv)>1:
     imgs = sys.argv[1:]
 else:   
-    imgs = ["sample_images/boykisser.jpg"]
+    imgs = ["sample_media/boykisser.jpg"]
 
 for img_name in imgs:
     img=PIL.Image.open(img_name)
@@ -44,19 +44,13 @@ for img_name in imgs:
         img_grayscale = PIL.ImageOps.invert(img).convert('L')
 
 
-    chars = ["#", "."]
+    chars = ["@", "#", "$", "%", "?", "*", ";", ":", ",", "."]
     
     pixels = img_grayscale.getdata()
 
-    # max light level is 256, pixel//128 should work
-    # what happens here is that we are converting the image into a 
-    # ascii representation of two states, light and dark
-    # may break for non line art
-    # TODO: fix for non line art if possible
-
     new_pixels = []
     for pixel in pixels:
-        new_pixels.append(chars[pixel//128])
+        new_pixels.append(chars[pixel//28])
 
     new_pixels = ''.join(new_pixels)
     new_pixels_count = len(new_pixels)
