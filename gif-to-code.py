@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import struct
 import argparse
@@ -7,7 +7,7 @@ from PIL import ImageOps, Image, ImageStat, ImageSequence
 parser = argparse.ArgumentParser(description='Converts gif into runnder code')
 parser.add_argument('--input', type=str, help='input gif', default="sample_media/chipi-chipi-chapa-chapa-boykisser.gif")
 parser.add_argument('--output', type=str, help='output', default="out/run-gif.py")
-parser.add_argument('--width', type=int, help='Number of characters in a line', default=200)
+parser.add_argument('--width', type=int, help='Number of characters in a line', default=100)
 parser.add_argument('--template', type=str, help='Template of the code, must have #INJECT comment for frames var injection point', default="src/gif-runner.py")
 args = parser.parse_args()
 
