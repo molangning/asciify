@@ -12,7 +12,7 @@ import argparse
 from PIL import Image,ImageOps,ImageStat
 
 parser = argparse.ArgumentParser(description='Converts given code into the shape of input picture')
-parser.add_argument('--image', type=str, help='input image', default="sample_media/frame-7.jpg")
+parser.add_argument('--image', type=str, help='input image', default="sample_media/boykisser.jpg")
 parser.add_argument('--code', type=str, help='python file of code', default="out/run-gif.py")
 parser.add_argument('--output', type=str, help='output', default="out/formatted-code.py")
 parser.add_argument('--width', type=int, help='Number of characters in a line', default=400)
@@ -70,9 +70,7 @@ if len(unpacker_head) > count_usable(text[0]):
     raise Exception(f"unpacker head is longer than the amount of free continuous space in the first line, minimum width is {len(unpacker_head)}")
 
 
-line_width = len(text[0])
-
-target_inject = text[-1][line_width - unpacker_end_length:]
+target_inject = text[-1][len(text[0]) - unpacker_end_length:]
 
 if len(target_inject) > count_usable(target_inject):
     raise Exception("unpacker end is longer than the amount of free continuous space in the last line")
@@ -82,37 +80,34 @@ text="\n".join(text)
 
 max_payload_size = count_usable(text[unpacker_head_length:len(text) - unpacker_end_length])
 payload = base64.b64encode(lzma.compress(code.strip().encode())).decode()
+payload_len = len(payload)
 
-if len(payload) > max_payload_size:
+print(payload_len)
+#exit()
 
-    print("Calculating resize...")
+if payload_len > max_payload_size:
+
+    print("Payload is too big, calculating resize...")
+
+    new_width = args.width + 1
 
     while True:
 
-        new_payload_len = 0
+        print(f"Trying {new_width}")
+
+        text = "".join(asciify(og_img, new_width))
+        new_payload_size = count_usable(text[unpacker_head_length:len(text) - unpacker_end_length])
+
+        print(f"New payload size, {new_payload_size}")
+
+        if new_payload_size >= payload_len:
+            break
 
         new_width += 1
-        new_height = int(aspect_ratio * new_width * 0.55)
-        
-        img = img.resize((new_width, new_height))
-        img_grayscale = img.convert('L')
-
-        if ImageStat.Stat(img_grayscale).mean[0] > 128:
-            img_grayscale = ImageOps.invert(img).convert('L')
-
-        new_pixels = []
-
-        for pixel in img_grayscale.getdata():
-            new_pixels.append(chars[pixel//128])
-
-        new_payload_len = ''.join(new_pixels).count("#")
-
-        if new_payload_len >= len(payload):
-            break
 
     print(f"Found nearest width {new_width+1}, try using it as width")
 
-    raise Exception(f"payload is longer than the amount of free space we have ({len(payload)} > {max_payload_size})")
+    raise Exception(f"payload is longer than the amount of free space we have ({payload_len} > {max_payload_size})")
 
 print("Packed payload")
 
